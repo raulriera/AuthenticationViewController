@@ -15,20 +15,19 @@ Prepare your `AppDelegate` to handle this newly created URL Scheme
 ```swift
 func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
 
-        // Before doing this, you should check the url is your redirect-uri before doing anything. Be safe :)
-        if let components = NSURLComponents(URL: url, resolvingAgainstBaseURL: false), let queryItems = components.queryItems, let code = queryItems.first?.value {
+    // Before doing this, you should check the url is your redirect-uri before doing anything. Be safe :)
+    if let components = NSURLComponents(URL: url, resolvingAgainstBaseURL: false), let queryItems = components.queryItems, let code = queryItems.first?.value {
 
-            // Let's find the instance of our authentication controller, it would be the presentedViewController. This is another reason to check before that we are actually coming from the SFSafariViewController
-            if let rootViewController = window?.rootViewController, let authenticationViewController = rootViewController.presentedViewController as? AuthenticationViewController {
-                authenticationViewController.authenticateWithCode(code)
-            }
-
-            return true
+        // Let's find the instance of our authentication controller, it would be the presentedViewController. This is another reason to check before that we are actually coming from the SFSafariViewController
+        if let rootViewController = window?.rootViewController, let authenticationViewController = rootViewController.presentedViewController as? AuthenticationViewController {
+            authenticationViewController.authenticateWithCode(code)
         }
 
-        return false
-
+        return true
     }
+
+    return false
+}
 ```
 
 Note that you need to pass the `authentication code` received by your URL scheme to the `AuthenticationViewController` so it can exchange it for an actual `access token`.
@@ -41,19 +40,20 @@ Instantiate an `AuthenticationViewController` in your code and pass in the provi
 
 ```swift
 let provider = OAuthDribbble(clientId: "your-client-id", clientSecret: "your-client-secret", scopes: ["public", "upload"])
-        let authenticationViewController = AuthenticationViewController(provider: provider)
 
-        authenticationViewController.failureHandler = { error in
-            print(error)
-        }
+let authenticationViewController = AuthenticationViewController(provider: provider)
 
-        authenticationViewController.authenticationHandler = { token in
-            print(token)
+authenticationViewController.failureHandler = { error in
+    print(error)
+}
 
-            authenticationViewController.dismissViewControllerAnimated(true, completion: nil)
-        }
+authenticationViewController.authenticationHandler = { token in
+    print(token)
 
-        presentViewController(authenticationViewController, animated: true, completion: nil)
+    authenticationViewController.dismissViewControllerAnimated(true, completion: nil)
+}
+
+presentViewController(authenticationViewController, animated: true, completion: nil)
 ```
 
 That is it, when you fill in your user account in the `AuthenticationViewController` and if everything went correctly you should get the `access token` in the `authenticationHandler` closure. Otherwise check for any errors in the `failureHandler` closure.
