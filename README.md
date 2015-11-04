@@ -58,6 +58,22 @@ presentViewController(authenticationViewController, animated: true, completion: 
 
 That is it, when you fill in your user account in the `AuthenticationViewController` and if everything went correctly you should get the `access token` in the `authenticationHandler` closure. Otherwise check for any errors in the `failureHandler` closure.
 
+## Installation
+
+Choose one of the following options.
+
+### Carthage
+
+Add the following to your Cartfile:
+
+``` ruby
+github "raulriera/AuthenticationViewController"
+```
+
+### Manual
+
+Just drag and drop the `AuthenticationViewController/AuthenticationViewController` folder into your project.
+
 ## Example
 
 Sometimes it's easier to dig in into some code, included in this project is an example for Dribbble and Instagram. You will still need to edit the source code to provide real `clientId`, `clientSecret`, and your `URL scheme`.
