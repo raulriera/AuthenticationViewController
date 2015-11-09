@@ -14,16 +14,20 @@ import SafariServices
  
  - InvalidToken:		The token retrieved was incorrect.
  - InvalidRequest:      There was an error in the request performed. A `NSError` instance is associated to this case.
+ - UserCancelled:       The user closed the authentication view controller on its own.
  - URLResponseError:	There was an error in the token retrieving process. The whole `NSURLResponse` is associated to this case.
  */
 public enum AuthenticationError: ErrorType {
     case InvalidToken
     case InvalidRequest(NSError)
+    case UserCancelled
     case URLResponseError(NSURLResponse)
 }
 
 /**
  The AuthenticationViewController class provides a standard interface for authenticating to oauth 2.0 protected endpoints via SFSafariViewController.
+ 
+ Use the `AuthenticationHandler` and or `FailureHandler` to dismiss the View Controller once you are finished with the authentication.
  */
 public class AuthenticationViewController: UINavigationController {
     
@@ -64,7 +68,15 @@ public class AuthenticationViewController: UINavigationController {
         let safariViewController = SFSafariViewController(URL: authenticationURL)
         safariViewController.title = provider.title
         
+        let cancelButton = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: Selector("didTapCancel"))
+        safariViewController.navigationItem.rightBarButtonItem = cancelButton
         setViewControllers([safariViewController], animated: false)
+    }
+    
+    // MARK: Actions
+    
+    internal func didTapCancel() {
+        failureHandler?(.UserCancelled)
     }
     
     // MARK: Authentication
