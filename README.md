@@ -1,6 +1,8 @@
 # AuthenticationViewController
 A simple to use, standard interface for authenticating to OAuth 2.0 protected endpoints via SFSafariViewController.
 
+![Step1](/Screenshots/Demo.gif)
+
 ## Instructions
 In order to use this View Controller you need to be running iOS 9 on your simulator or device.
 
@@ -68,6 +70,14 @@ Add the following to your Cartfile:
 
 ``` ruby
 github "raulriera/AuthenticationViewController"
+```
+
+### Cocoapods
+
+Add the following to your Podfile:
+
+``` ruby
+pod "AuthenticationViewController"
 ```
 
 ### Manual
