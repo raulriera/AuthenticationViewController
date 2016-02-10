@@ -79,7 +79,7 @@ Add the following to your Cartfile:
 github "raulriera/AuthenticationViewController"
 ```
 
-### Cocoapods
+### CocoaPods
 
 Add the following to your Podfile:
 
