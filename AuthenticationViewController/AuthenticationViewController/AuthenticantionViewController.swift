@@ -12,16 +12,16 @@ import SafariServices
 /**
  The types of errors that this class can return in the `failureHandler`.
  
- - InvalidToken:		The token retrieved was incorrect.
- - InvalidRequest:      There was an error in the request performed. A `NSError` instance is associated to this case.
- - UserCancelled:       The user closed the authentication view controller on its own.
- - URLResponseError:	There was an error in the token retrieving process. The whole `NSURLResponse` is associated to this case.
+ - invalidToken:		The token retrieved was incorrect.
+ - invalidRequest:      There was an error in the request performed. A `NSError` instance is associated to this case.
+ - userCancelled:       The user closed the authentication view controller on its own.
+ - urlResponseError:	There was an error in the token retrieving process. The whole `NSURLResponse` is associated to this case.
  */
-public enum AuthenticationError: ErrorType {
-    case InvalidToken
-    case InvalidRequest(NSError)
-    case UserCancelled
-    case URLResponseError(NSURLResponse)
+public enum AuthenticationError: Error {
+    case invalidToken
+    case invalidRequest(Error)
+    case userCancelled
+    case urlResponseError(URLResponse)
 }
 
 /**
@@ -29,16 +29,15 @@ public enum AuthenticationError: ErrorType {
  
  Use the `AuthenticationHandler` and or `FailureHandler` to dismiss the View Controller once you are finished with the authentication.
  */
-public class AuthenticationViewController: UINavigationController {
-    
+open class AuthenticationViewController: UINavigationController {
     public typealias AuthenticationHandler = ([String: AnyObject]) -> Void
     public typealias FailureHandler = (AuthenticationError) -> Void
     /// A closure called when the authentication token is retrieved
-    public var authenticationHandler: AuthenticationHandler?
+    open var authenticationHandler: AuthenticationHandler?
     /// A closure called when an error occurs in any of the authentication step
-    public var failureHandler: FailureHandler?
+    open var failureHandler: FailureHandler?
     
-    private let provider: AuthenticationProvider
+    fileprivate let provider: AuthenticationProvider
     
     // MARK: Initialisers
     
@@ -61,14 +60,14 @@ public class AuthenticationViewController: UINavigationController {
     
     // MARK: View Controller Lifecycle
     
-    override public func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         
         let authenticationURL = provider.authorizationURL
-        let safariViewController = SFSafariViewController(URL: authenticationURL)
+        let safariViewController = SFSafariViewController(url: authenticationURL as URL)
         safariViewController.title = provider.title
         
-        let cancelButton = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: Selector("didTapCancel"))
+        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(AuthenticationViewController.didTapCancel))
         safariViewController.navigationItem.rightBarButtonItem = cancelButton
         setViewControllers([safariViewController], animated: false)
     }
@@ -76,7 +75,7 @@ public class AuthenticationViewController: UINavigationController {
     // MARK: Actions
     
     internal func didTapCancel() {
-        failureHandler?(.UserCancelled)
+        failureHandler?(.userCancelled)
     }
     
     // MARK: Authentication
@@ -86,44 +85,43 @@ public class AuthenticationViewController: UINavigationController {
     
     - parameter code:	The authorization code retrieved
     */
-    public func authenticateWithCode(code: String) {
-        let request = NSMutableURLRequest(URL: provider.accessTokenURL)
+    open func authenticateWithCode(_ code: String) {
+        let request = NSMutableURLRequest(url: provider.accessTokenURL as URL)
         let parameters = provider.parameters.map { key, value in
             "\(key)=\(value)"
-            }.joinWithSeparator("&")
+            }.joined(separator: "&")
         let data = "client_id=\(provider.clientId)&client_secret=\(provider.clientSecret)&code=\(code)&\(parameters)"
         
-        request.HTTPMethod = "POST"
-        request.HTTPBody = data.dataUsingEncoding(NSUTF8StringEncoding)
-        
-        NSURLSession.sharedSession().dataTaskWithRequest(request) { [unowned self] (data, response, error) in
-            dispatch_async(dispatch_get_main_queue()) {
+        request.httpMethod = "POST"
+        request.httpBody = data.data(using: String.Encoding.utf8)
+
+        URLSession.shared.dataTask(with: request as URLRequest) { [unowned self] (data, response, error) in
+			DispatchQueue.main.async {
                 
-                guard error == .None else {
-                    self.failureHandler?(.InvalidRequest(error!))
+                guard error == nil else {
+                    self.failureHandler?(.invalidRequest(error!))
                     return
                 }
                 
-                guard let httpResponse = response as? NSHTTPURLResponse where 200..<300 ~= httpResponse.statusCode else {
-                    self.failureHandler?(.URLResponseError(response!))
+                guard let httpResponse = response as? HTTPURLResponse , 200..<300 ~= httpResponse.statusCode else {
+                    self.failureHandler?(.urlResponseError(response!))
                     return
                 }
                 
                 guard let data = data else {
-                    self.failureHandler?(.InvalidToken)
+                    self.failureHandler?(.invalidToken)
                     return
                 }
                 
                 do {
-                    if let json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? [String: AnyObject] {
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] {
                             self.authenticationHandler?(json)
                     }
                 } catch {
-                    self.failureHandler?(.URLResponseError(httpResponse))
+                    self.failureHandler?(.urlResponseError(httpResponse))
                 }
                 
             }
         }.resume()
     }
-    
 }

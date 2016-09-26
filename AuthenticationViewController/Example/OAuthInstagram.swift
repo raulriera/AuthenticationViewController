@@ -18,12 +18,12 @@ struct OAuthInstagram: AuthenticationProvider {
     
     let redirectURI = "your-redirect-uri" // this is required for Instagram
     
-    var authorizationURL: NSURL {
-        return NSURL(string: "https://api.instagram.com/oauth/authorize/?client_id=\(clientId)&scope=\(scopes.joinWithSeparator("+"))&redirect_uri=\(redirectURI)&response_type=code")!
+    var authorizationURL: URL {
+        return URL(string: "https://api.instagram.com/oauth/authorize/?client_id=\(clientId)&scope=\(scopes.joined(separator: "+"))&redirect_uri=\(redirectURI)&response_type=code")!
     }
     
-    var accessTokenURL: NSURL {
-        return NSURL(string: "https://api.instagram.com/oauth/access_token")!
+    var accessTokenURL: URL {
+        return URL(string: "https://api.instagram.com/oauth/access_token")!
     }
     
     var parameters: [String: String] {

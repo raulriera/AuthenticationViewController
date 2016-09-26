@@ -16,12 +16,12 @@ struct OAuthDribbble: AuthenticationProvider {
     let clientSecret: String
     let scopes: [String]
     
-    var authorizationURL: NSURL {
-        return NSURL(string: "https://dribbble.com/oauth/authorize?client_id=\(clientId)&scope=\(scopes.joinWithSeparator("+"))")!
+    var authorizationURL: URL {
+        return URL(string: "https://dribbble.com/oauth/authorize?client_id=\(clientId)&scope=\(scopes.joined(separator: "+"))")!
     }
     
-    var accessTokenURL: NSURL {
-        return NSURL(string: "https://dribbble.com/oauth/token")!
+    var accessTokenURL: URL {
+        return URL(string: "https://dribbble.com/oauth/token")!
     }
     
     var parameters = ["":""]

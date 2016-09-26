@@ -21,7 +21,7 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    @IBAction func didTapAuthenticate(sender: UIButton) {
+    @IBAction func didTapAuthenticate(_ sender: UIButton) {
         let provider = OAuthDribbble(clientId: "your-client-id", clientSecret: "your-client-secret", scopes: ["public", "upload"])
         let authenticationViewController = AuthenticationViewController(provider: provider)
         
@@ -31,12 +31,9 @@ class ViewController: UIViewController {
         
         authenticationViewController.authenticationHandler = { token in
             print(token)
-            
-            authenticationViewController.dismissViewControllerAnimated(true, completion: nil)
+            authenticationViewController.dismiss(animated: true, completion: nil)
         }
         
-        presentViewController(authenticationViewController, animated: true, completion: nil)
+        present(authenticationViewController, animated: true, completion: nil)
     }
-
 }
-
