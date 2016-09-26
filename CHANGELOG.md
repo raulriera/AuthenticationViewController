@@ -1,3 +1,7 @@
+1.2 / 2016-09-27
+==================
+  * Swift 3.0
+
 1.1 / 2015-11-09
 ==================
   * Support for closing the authentication window. This fires the `FailureHandler` closure with a value of `.UserCancelled`.
