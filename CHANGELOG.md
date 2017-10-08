@@ -1,3 +1,8 @@
+1.3 / 2017-10-08
+==================
+  * Removed the wrapping UINavigationController, now is simply a subclass of SFSafariViewController
+  * Swift 4.0
+
 1.2 / 2016-09-27
 ==================
   * Swift 3.0
